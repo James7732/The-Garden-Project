@@ -1,8 +1,6 @@
 import { Component, OnInit, LOCALE_ID, ɵConsole } from '@angular/core';
 import { GardenServiceService } from '../service/garden-service.service';
 import { DatePipe } from '@angular/common';
-import { map } from 'rxjs/operators';
-import { element } from 'protractor';
 
 @Component({
   selector: 'app-home',
@@ -11,22 +9,20 @@ import { element } from 'protractor';
   providers: [DatePipe]
 })
 export class HomeComponent implements OnInit {
-  private allData = [];
-  private timeStamps = [];
 
-  constructor(private channelData: GardenServiceService,
-              private datepipe: DatePipe) { }
+  timeStamps = [];
+  tempData = [];
+  chart = [];
+
+  constructor(private channelData: GardenServiceService) { }
 
   public chartType = 'line';
 
   public tempArr = [];
 
-  public chartDatasets: Array<any> = [
-    { data: [28, 19, 12, 45, 46, 32, 80], label: 'Temperature' },
-    { data: [28, 48, 40, 19, 86, 27, 90], label: 'My Second dataset' }
-  ];
+  public chartDatasets: Array<any> = [];
 
-  public chartLabels: Array<any> = ['Jan', 'Feb', 'Mar', 'Apr', 'Jun', 'Jul'];
+  public chartLabels: Array<any> = [];
 
   public chartColors: Array<any> = [
     {
@@ -46,17 +42,64 @@ export class HomeComponent implements OnInit {
   };
 
   ngOnInit() {
+    this.channelData.getTempData().subscribe(data => {
+      const arrTemp = data.feeds.map(res => res.field1);
+      const arrTime = data.feeds.map(res => res.created_at);
 
+      const timestamps = [];
+      arrTime.forEach((res) => {
+        const dataTime = new Date(res);
+        timestamps.push(dataTime.toLocaleTimeString('default', {
+        hour12: false,
+        hour: 'numeric',
+        minute: 'numeric'}));
+      });
+      this.tempData = arrTemp;
+      this.timeStamps = timestamps;
+      console.log('one entry: ' + this.timeStamps);
+      this.chartLabels = timestamps;
+      this.chartDatasets = [
+        { data: this.tempData, label: 'Temperature (*C)' }
+      ];
+    });
+
+
+    // this.chart = new Chart('canvas', {
+    //   type: 'line',
+    //   data: {
+    //     labels: this.timeStamps,
+    //     datasets: [{
+    //       data: this.tempData,
+    //       borderColor: 'rgba(200, 99, 132, .7)',
+    //       borderWidth: 2,
+    //       backgroundColor: 'rgba(105, 0, 132, .2)',
+    //       fill: true
+    //     }]
+    //   },
+    //   options: {
+    //     legend: {
+    //       display: true
+    //     },
+    //     scales: {
+    //       xAxes: [{
+    //         display: true
+    //       }],
+    //       yAxes: [{
+    //         display: true
+    //       }]
+    //     }
+    //   }
+    // });
   }
 
   updateGraph() {
     this.channelData.getTempData().subscribe((data) => {
-      this.allData = data;
-      for (const i in data) {
-        this.tempArr.push(data[i].field1);
-        // this.timeStamps.push(this.datepipe.transform(data[i].created_at, 'short', 'GMT+2', 'en-US').toString());
-      }
-      console.log(this.tempArr);
+      // this.allData = data;
+      // for (const i in data) {
+      //   this.tempArr.push(data[i].field1);
+      //   // this.timeStamps.push(this.datepipe.transform(data[i].created_at, 'short', 'GMT+2', 'en-US').toString());
+      // }
+      console.log(data);
 
       // this.allData.forEach((element) => {
 

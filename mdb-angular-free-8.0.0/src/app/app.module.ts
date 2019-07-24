@@ -6,11 +6,14 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
+import { GardenServiceService } from './service/garden-service.service';
+import { InfoComponent } from './info/info.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+    HomeComponent,
+    InfoComponent
   ],
   imports: [
     BrowserModule,
@@ -18,7 +21,7 @@ import { HomeComponent } from './home/home.component';
     MDBBootstrapModule.forRoot(),
     HttpClientModule
   ],
-  providers: [],
+  providers: [GardenServiceService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
